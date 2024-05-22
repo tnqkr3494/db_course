@@ -5,7 +5,7 @@ const { ConnectionPool } = require("mssql");
 
 dotenv.config();
 
-const app = express();
+export const app = express();
 app.use(cors());
 app.use(express.json());
 
@@ -42,9 +42,10 @@ pool
     console.error("Database connection failed:", err);
   });
 
-app.get("/api/data", async (req: any, res: any) => {
+app.get("/api/movie", async (req: any, res: any) => {
   try {
-    const result = await pool.request().query("SELECT * FROM users");
+    const result = await pool.request().query(`select *
+    from movie`);
     res.json(result.recordset);
   } catch (err) {
     console.error(err);

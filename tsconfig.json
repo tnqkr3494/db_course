@@ -5,8 +5,9 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "strict": true
+    "strict": true,
+    "jsx": "react-jsx"
   },
-  "include": ["src/server/**/*"],
+  "include": ["src/server/**/*", "src", "**/*.tsx"],
   "exclude": ["node_modules"]
 }
