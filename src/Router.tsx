@@ -5,6 +5,7 @@ import Root from "./pages/Root";
 import Profile from "./pages/Profile";
 import Ticket from "./pages/Ticket";
 import Cinema from "./pages/Cinema";
+import Login from "./pages/Login";
 
 export const router = createBrowserRouter([
   {
@@ -28,5 +29,9 @@ export const router = createBrowserRouter([
         element: <Cinema />,
       },
     ],
+  },
+  {
+    path: "/login",
+    element: <Login />,
   },
 ]);

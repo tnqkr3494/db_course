@@ -6,7 +6,8 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "typeRoots": ["./node_modules/@types", "./express-session.d.ts"]
   },
   "include": ["src/server/**/*", "src", "**/*.tsx"],
   "exclude": ["node_modules"]
