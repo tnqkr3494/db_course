@@ -10,6 +10,13 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 8080;
 
+app.use(
+  cors({
+    origin: "http://localhost:3000", // 프론트엔드 주소
+    credentials: true, // 자격 증명을 사용하도록 설정
+  })
+);
+
 app.use(express.json());
 
 app.use(
@@ -20,16 +27,6 @@ app.use(
     cookie: { secure: false, maxAge: 1000 * 60 * 60 * 24 }, // 1 day
   })
 );
-
-app.use(function (req, res, next) {
-  res.header("Access-Control-Allow-Origin", "http://localhost:3000"); // 클라이언트 주소
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept"
-  );
-  res.header("Access-Control-Allow-Credentials", "true"); // 세션을 쿠키에 저장할 수 있도록 설정
-  next();
-});
 
 const dbConfig = {
   user: process.env.DB_USER,
@@ -54,6 +51,39 @@ pool
   .catch((err: any) => {
     console.error("Database connection failed:", err);
   });
+
+app.get("/api/movie", async (req: Request, res: Response) => {
+  const { sort } = req.query;
+
+  let orderByClause;
+  switch (sort) {
+    case "rating":
+      orderByClause = "rating";
+      break;
+    case "year":
+      orderByClause = "year";
+      break;
+    case "name":
+      orderByClause = "movie_name";
+      break;
+    default:
+      orderByClause = "movie_name";
+  }
+
+  try {
+    const result = await pool
+      .request()
+      .query(
+        `SELECT * FROM movie ORDER BY ${orderByClause} ${
+          orderByClause === "rating" ? "desc" : ""
+        }`
+      );
+    res.json(result.recordset);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error retrieving data from database.");
+  }
+});
 
 app.post("/api/login", async (req: Request, res: Response) => {
   const { username, password } = req.body;
@@ -86,7 +116,7 @@ app.post("/api/login", async (req: Request, res: Response) => {
 
     console.log(req.session.user);
 
-    res.redirect("/profile");
+    res.status(200).json({ message: "good" });
   } catch (error) {
     console.error("Error during login:", error);
     res.status(500).json({ error: "Internal server error" });

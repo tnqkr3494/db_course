@@ -11,10 +11,15 @@ const Login = () => {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     try {
-      await axios.post("http://localhost:8080/api/login", {
+      const response = await axios.post("http://localhost:8080/api/login", {
         username,
         password,
       });
+
+      if (response.status === 200) {
+        console.log(response.data);
+        navigate("/"); // Redirect to home page after successful login
+      }
     } catch (err) {
       setError("Invalid username or password");
     }

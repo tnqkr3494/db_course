@@ -25,9 +25,10 @@ const Home = () => {
           </div>
         </div>
       </section>
-      <h2 className="mt-80 mb-40 text-center font-semibold text-5xl">
-        Now Playing
-      </h2>
+      <div className="mt-80 mb-28 text-center flex flex-col gap-5">
+        <h2 className="font-semibold text-5xl">Movies</h2>
+        <p>This is a list of movies that are playing in our movie theater.</p>
+      </div>
       <Slider />
     </div>
   );

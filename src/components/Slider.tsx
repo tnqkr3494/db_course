@@ -63,11 +63,15 @@ function Slider() {
   const [isBack, setIsBack] = useState(false);
   const [index, setIndex] = useState(0);
   const [leaving, setLeaving] = useState(false);
+  const [sort, setSort] = useState("name");
 
   useEffect(() => {
     const fetchMovies = async () => {
       try {
-        const response = await axios.get("http://localhost:8080/api/movie");
+        const response = await axios.get("http://localhost:8080/api/movie", {
+          params: { sort },
+          withCredentials: true,
+        });
         setMovies(response.data);
       } catch (error) {
         console.error("Error fetching movies:", error);
@@ -75,7 +79,7 @@ function Slider() {
     };
 
     fetchMovies();
-  }, []);
+  }, [sort]);
 
   const toggleLeaving = () => setLeaving((prev) => !prev);
 
@@ -92,6 +96,10 @@ function Slider() {
     }
   };
 
+  const handleSortChange = (event: any) => {
+    setSort(event.target.value);
+  };
+
   const prevSlide = () => {
     if (movies.length > 0) {
       if (leaving) return;
@@ -104,63 +112,77 @@ function Slider() {
   };
 
   return (
-    <motion.div className="relative h-[50vh]">
-      <AnimatePresence
-        initial={false}
-        onExitComplete={toggleLeaving}
-        custom={isBack}
-      >
-        <motion.div
-          key={index}
-          className="absolute grid gap-2 grid-cols-6 w-full px-1"
-          variants={rowVariants}
-          initial="hidden"
-          animate="visible"
-          exit="exit"
-          transition={{ type: "tween", duration: 1 }}
+    <div>
+      <div className="flex justify-end mb-3">
+        <select
+          name="sort"
+          className="px-5 py-3 rounded-md mb-3"
+          onChange={handleSortChange}
+          value={sort}
+        >
+          <option value="rating">rating</option>
+          <option value="year">year</option>
+          <option value="name">name</option>
+        </select>
+      </div>
+      <motion.div className="relative h-[50vh]">
+        <AnimatePresence
+          initial={false}
+          onExitComplete={toggleLeaving}
           custom={isBack}
         >
-          {movies
-            .slice(index * offset, index * offset + offset)
-            .map((movie) => (
-              <motion.div
-                key={movie.id}
-                className="relative h-52 bg-[url('./assets/images/poster.jpeg')] text-red-500 text-6xl bg-cover bg-center flex justify-center items-center text-center rounded-md cursor-pointer hover:z-10"
-                variants={boxVariants}
-                initial="normal"
-                whileHover="hover"
-                transition={{ type: "tween" }}
-              >
-                <div className="text-base font-medium text-white max-w-xs">
-                  {movie.movie_name}
-                </div>
+          <motion.div
+            key={index}
+            className="absolute grid gap-2 grid-cols-6 w-full px-1"
+            variants={rowVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            transition={{ type: "tween", duration: 1 }}
+            custom={isBack}
+          >
+            {movies
+              .slice(index * offset, index * offset + offset)
+              .map((movie) => (
                 <motion.div
-                  className="absolute bottom-0 w-full bg-black bg-opacity-50 p-2 flex flex-col items-center text-white text-sm font-medium opacity-0"
-                  variants={infoVariants}
+                  key={movie.id}
+                  className="relative h-52 bg-[url('./assets/images/poster.jpeg')] text-red-500 text-6xl bg-cover bg-center flex justify-center items-center text-center rounded-md cursor-pointer hover:z-10"
+                  variants={boxVariants}
+                  initial="normal"
+                  whileHover="hover"
+                  transition={{ type: "tween" }}
                 >
-                  <div className="text-lg text-red-500">★ {movie.rating}</div>
-                  <div>개봉 연도: {movie.year}</div>
-                  <div>언어: {movie.language}</div>
+                  <div className="text-base font-medium text-white max-w-xs">
+                    {movie.movie_name}
+                  </div>
+                  <motion.div
+                    className="absolute bottom-0 w-full bg-black bg-opacity-50 p-2 flex flex-col items-center text-white text-sm font-medium opacity-0"
+                    variants={infoVariants}
+                  >
+                    <div className="text-lg text-red-500">★ {movie.rating}</div>
+                    <div>개봉 연도: {movie.year}</div>
+                    <div>언어: {movie.language}</div>
+                  </motion.div>
                 </motion.div>
-              </motion.div>
-            ))}
+              ))}
+          </motion.div>
+        </AnimatePresence>
+        <motion.div
+          className="absolute top-20 bg-white bg-opacity-50 p-4 rounded-full flex justify-center items-center  cursor-pointer z-20"
+          variants={btnVariants}
+          onClick={prevSlide}
+        >
+          ◀️
         </motion.div>
-      </AnimatePresence>
-      <motion.div
-        className="absolute top-32 bg-white bg-opacity-50 w-15 h-15 rounded-full flex justify-center items-center  cursor-pointer"
-        variants={btnVariants}
-        onClick={prevSlide}
-      >
-        ◀️
+        <motion.div
+          className="absolute top-20 bg-white bg-opacity-50 p-4 rounded-full flex justify-center items-center cursor-pointer right-0 z-20"
+          variants={btnVariants}
+          onClick={nextSlide}
+        >
+          ▶️
+        </motion.div>
       </motion.div>
-      <motion.div
-        className="absolute top-32 bg-white bg-opacity-50 w-15 h-15 rounded-full flex justify-center items-center cursor-pointer right-0"
-        variants={btnVariants}
-        onClick={nextSlide}
-      >
-        ▶️
-      </motion.div>
-    </motion.div>
+    </div>
   );
 }
 
