@@ -6,6 +6,7 @@ import Profile from "./pages/Profile";
 import Ticket from "./pages/Ticket";
 import Cinema from "./pages/Cinema";
 import Login from "./pages/Login";
+import Detail from "./pages/Detail";
 
 export const router = createBrowserRouter([
   {
@@ -27,6 +28,10 @@ export const router = createBrowserRouter([
       {
         path: "cinema",
         element: <Cinema />,
+      },
+      {
+        path: "movie/:id",
+        element: <Detail />,
       },
     ],
   },

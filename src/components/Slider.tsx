@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const boxVariants = {
   normal: {
@@ -64,6 +65,7 @@ function Slider() {
   const [index, setIndex] = useState(0);
   const [leaving, setLeaving] = useState(false);
   const [sort, setSort] = useState("name");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchMovies = async () => {
@@ -151,6 +153,9 @@ function Slider() {
                   initial="normal"
                   whileHover="hover"
                   transition={{ type: "tween" }}
+                  onClick={() => {
+                    navigate(`/movie/${movie.id}`);
+                  }}
                 >
                   <div className="text-base font-medium text-white max-w-xs">
                     {movie.movie_name}
