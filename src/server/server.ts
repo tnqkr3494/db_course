@@ -3,7 +3,6 @@ import session from "express-session";
 import dotenv from "dotenv";
 import { ConnectionPool } from "mssql";
 import cors from "cors";
-const FileStore = require("session-file-store")(session);
 
 dotenv.config();
 
@@ -138,16 +137,41 @@ app.get("/api/movie/:id", async (req: Request, res: Response) => {
   const { id } = req.params;
 
   try {
-    const result = await pool
-      .request()
-      .input("id", id)
-      .query("SELECT * FROM movie WHERE id = @id");
+    const result = await pool.request().input("id", id).query(`
+      SELECT *
+      FROM movie m
+      JOIN movie_actor_connect mac ON m.id = mac.m_id
+      JOIN director_movie_connect dmc ON m.id = dmc.m_id
+      JOIN actor a ON mac.a_id = a.id
+      JOIN Director d ON dmc.d_id = d.id
+      WHERE m.id = @id
+      `);
 
     if (result.recordset.length === 0) {
       return res.status(404).json({ error: "Movie not found" });
     }
 
-    res.json(result.recordset[0]);
+    res.json(result.recordset);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error retrieving data from database.");
+  }
+});
+
+app.get("/api/genre", async (req, res) => {
+  const { genre } = req.query;
+
+  if (!genre) {
+    return res.status(400).json({ error: "Genre is required" });
+  }
+
+  try {
+    const result = await pool
+      .request()
+      .input("genre", genre)
+      .query("SELECT * FROM movieGenres(@genre)");
+
+    res.json(result.recordset);
   } catch (err) {
     console.error(err);
     res.status(500).send("Error retrieving data from database.");

@@ -30,6 +30,11 @@ const Home = () => {
         <p>This is a list of movies that are playing in our movie theater.</p>
       </div>
       <Slider />
+      <div className="mt-50 mb-28 text-center flex flex-col gap-5">
+        <h2 className="font-semibold text-5xl">Genres</h2>
+        <p>This is a list of movies that are playing in our movie theater.</p>
+      </div>
+      <Slider isGenre={true} />
     </div>
   );
 };
