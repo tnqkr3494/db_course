@@ -22,13 +22,13 @@ function Header() {
               <summary>Cinema</summary>
               <ul className="p-2 bg-base-100 rounded-t-none">
                 <li>
-                  <a href="cinema">Hello Cinema</a>
+                  <a href="/cinema/1">Hello Cinema</a>
                 </li>
                 <li>
-                  <a href="cinema">Welcome Cinema</a>
+                  <a href="/cinema/2">Welcome Cinema</a>
                 </li>
                 <li>
-                  <a href="cinema">Wolrd Cinema</a>
+                  <a href="/cinema/3">Wolrd Cinema</a>
                 </li>
               </ul>
             </details>

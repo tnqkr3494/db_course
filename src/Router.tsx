@@ -26,7 +26,7 @@ export const router = createBrowserRouter([
         element: <Ticket />,
       },
       {
-        path: "cinema",
+        path: "cinema/:id",
         element: <Cinema />,
       },
       {

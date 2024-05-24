@@ -178,6 +178,31 @@ app.get("/api/genre", async (req, res) => {
   }
 });
 
+// 영화관 api
+
+app.get("/api/cinema/:id", async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  try {
+    const result = await pool.request().input("id", id).query(`
+      select c.id as cinema_id, c.cinema_name, c.location, m.id as movie_id, m.movie_name, m.rating, m.year, m.language, m.summary, s.part_time, s.price
+      from cinema c
+      join show s on s.c_id = c.id
+      join movie m on s.m_id = m.id
+      WHERE c.id = @id
+      `);
+
+    if (result.recordset.length === 0) {
+      return res.status(404).json({ error: "Cinema not found" });
+    }
+
+    res.json(result.recordset);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error retrieving data from database.");
+  }
+});
+
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });
