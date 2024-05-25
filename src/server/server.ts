@@ -125,16 +125,6 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
-// 세션에 저장된 사용자 정보 가져오기
-app.get("/api/user", (req: Request, res: Response) => {
-  console.log(req.session.user);
-  if (req.session.user) {
-    res.json({ user: req.session.user });
-  } else {
-    res.status(401).json({ error: "Not authenticated" });
-  }
-});
-
 // 영화 정보
 app.get("/api/movie/:id", async (req: Request, res: Response) => {
   const { id } = req.params;
@@ -208,4 +198,42 @@ app.get("/api/cinema/:id", async (req: Request, res: Response) => {
 
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
+});
+
+// user profile
+
+// 세션에 저장된 사용자 정보 가져오기
+app.get("/api/user", (req: Request, res: Response) => {
+  console.log(req.session.user);
+  if (req.session.user) {
+    res.json({ user: req.session.user });
+  } else {
+    res.status(401).json({ error: "Not authenticated" });
+  }
+});
+
+// find favorite movie list
+app.get("/api/user/favorite", async (req: Request, res: Response) => {
+  if (req.session.user) {
+    const result = await pool.request().input("id", req.session.user.userId)
+      .query(`
+      select * from fav(@id)
+    `);
+    res.json(result.recordset);
+  } else {
+    res.status(401).json({ error: "Not authenticated" });
+  }
+});
+
+// find favorite movie list
+app.get("/api/user/tickets", async (req: Request, res: Response) => {
+  if (req.session.user) {
+    const result = await pool.request().input("id", req.session.user.userId)
+      .query(`
+      select * from userTicket(@id)
+    `);
+    res.json(result.recordset);
+  } else {
+    res.status(401).json({ error: "Not authenticated" });
+  }
 });

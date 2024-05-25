@@ -204,14 +204,14 @@ function Slider({ isGenre = false }: ISlider) {
           </motion.div>
         </AnimatePresence>
         <motion.div
-          className="absolute top-20 bg-white bg-opacity-50 p-4 rounded-full flex justify-center items-center cursor-pointer z-20"
+          className="absolute top-20 bg-white bg-opacity-50 px-2 py-4 rounded-full flex justify-center items-center cursor-pointer z-20"
           variants={btnVariants}
           onClick={prevSlide}
         >
           ◀️
         </motion.div>
         <motion.div
-          className="absolute top-20 bg-white bg-opacity-50 p-4 rounded-full flex justify-center items-center cursor-pointer right-0 z-20"
+          className="absolute top-20 bg-white bg-opacity-50 px-2 py-4 rounded-full flex justify-center items-center cursor-pointer right-0 z-20"
           variants={btnVariants}
           onClick={nextSlide}
         >

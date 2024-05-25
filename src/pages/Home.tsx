@@ -14,11 +14,14 @@ const Home = () => {
       <section className="hero min-h-screen bg-[url('./assets/images/main.png')]">
         <div className="hero-overlay bg-opacity-80 rounded-t-md"></div>
         <div className="hero-content text-center text-neutral-content">
-          <div className="max-w-md">
-            <h1 className="mb-5 text-5xl font-bold">Hello there</h1>
+          <div className="max-w-lg">
+            <h1 className="mb-5 text-6xl font-bold">Nostalgia</h1>
             <p className="mb-5">
-              Our Cinema is offering old masterpieces!
-              <br /> Come and see them
+              Nostalgia Films proudly operates three cinemas dedicated to
+              showcasing classic masterpieces. Our theaters bring timeless films
+              back to the big screen, offering a unique cinematic experience.
+              Join us to relive the golden age of cinema with carefully curated
+              selections from the past.
             </p>
             <Link to="/profile">
               <button className="btn btn-primary">Get Started</button>
