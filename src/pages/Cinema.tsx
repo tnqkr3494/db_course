@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 interface ICinema {
   cinema_id: string;
@@ -66,12 +66,12 @@ const Cinema = () => {
                   backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url(/${movie.movie_id}.jpeg)`,
                 }}
               >
-                <a href={`/movie/${movie.movie_id}`}>
+                <Link to={`/movie/${movie.movie_id}`}>
                   <h3 className="text-lg font-semibold text-white mb-2">
                     {movie.movie_name}
                   </h3>
                   <hr />
-                </a>
+                </Link>
                 <p className="text-white mt-4 mb-2">
                   Rating: <span className="text-yellow-400">★</span>{" "}
                   {movie.rating}
@@ -81,11 +81,11 @@ const Cinema = () => {
                 <hr />
                 <p className="text-white my-4">Ticket Price : {movie.price}</p>
                 <p className="text-white mb-4">Part Time : {movie.part_time}</p>
-                <a href="/tickets">
+                <Link to="/tickets">
                   <span className="capitalize text-red-500 font-extrabold">
                     ➡ go to see the movie
                   </span>
-                </a>
+                </Link>
               </div>
             ))}
           </div>

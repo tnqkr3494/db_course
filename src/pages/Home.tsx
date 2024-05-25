@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Slider from "../components/Slider";
+import { Link } from "react-router-dom";
 
 interface Users {
   id: string;
@@ -19,9 +20,9 @@ const Home = () => {
               Our Cinema is offering old masterpieces!
               <br /> Come and see them
             </p>
-            <a href="/profile">
+            <Link to="/profile">
               <button className="btn btn-primary">Get Started</button>
-            </a>
+            </Link>
           </div>
         </div>
       </section>

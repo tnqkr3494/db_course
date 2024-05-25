@@ -5,30 +5,30 @@ function Header() {
   return (
     <div className="navbar bg-base-100 p-5 border-b-2">
       <div className="flex-1">
-        <a href="/" className="btn btn-ghost text-xl">
+        <Link to="/" className="btn btn-ghost text-xl">
           Home
-        </a>
+        </Link>
       </div>
       <div className="flex-none">
         <ul className="menu menu-horizontal px-1 items-center">
           <li>
-            <a href="/tickets">Tickets</a>
+            <Link to="/tickets">Tickets</Link>
           </li>
           <li>
-            <a href="/profile">Profile</a>
+            <Link to="/profile">Profile</Link>
           </li>
           <li>
             <details>
               <summary>Cinema</summary>
               <ul className="p-2 bg-base-100 rounded-t-none">
                 <li>
-                  <a href="/cinema/1">Hello Cinema</a>
+                  <Link to="/cinema/1">Hello Cinema</Link>
                 </li>
                 <li>
-                  <a href="/cinema/2">Welcome Cinema</a>
+                  <Link to="/cinema/2">Welcome Cinema</Link>
                 </li>
                 <li>
-                  <a href="/cinema/3">Wolrd Cinema</a>
+                  <Link to="/cinema/3">Wolrd Cinema</Link>
                 </li>
               </ul>
             </details>
