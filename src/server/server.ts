@@ -20,10 +20,13 @@ app.use(express.json());
 
 app.use(
   session({
-    secret: "your-secret-key",
+    secret: process.env.SESSION_PASSWORD!,
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: false, maxAge: 1000 * 60 * 60 * 24 }, // 1 day
+    cookie: {
+      secure: false, // HTTPS를 사용하지 않으면 false로 설정
+      httpOnly: true,
+    },
   })
 );
 
@@ -84,7 +87,7 @@ app.get("/api/movie", async (req: Request, res: Response) => {
   }
 });
 
-app.post("/api/login", async (req: Request, res: Response) => {
+app.post("/api/login", async (req, res) => {
   const { username, password } = req.body;
 
   if (!username || !password) {

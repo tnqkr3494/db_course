@@ -81,7 +81,7 @@ const Detail = () => {
               {movie[0].director_name}
             </p>
             <div className="mb-2">
-              <span className="font-semibold">Actors:</span>
+              <span className="font-semibold">Actors</span>
               <ul className="list-disc list-inside pl-4">
                 {movie.map((detail, index) => (
                   <li key={index}>{detail.actor_name}</li>

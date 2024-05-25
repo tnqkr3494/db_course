@@ -12,10 +12,10 @@ function Header() {
       <div className="flex-none">
         <ul className="menu menu-horizontal px-1 items-center">
           <li>
-            <a href="tickets">Tickets</a>
+            <a href="/tickets">Tickets</a>
           </li>
           <li>
-            <a href="profile">Profile</a>
+            <a href="/profile">Profile</a>
           </li>
           <li>
             <details>

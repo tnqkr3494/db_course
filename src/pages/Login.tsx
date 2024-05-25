@@ -11,10 +11,11 @@ const Login = () => {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     try {
-      const response = await axios.post("http://localhost:8080/api/login", {
-        username,
-        password,
-      });
+      const response = await axios.post(
+        "http://localhost:8080/api/login",
+        { username, password },
+        { withCredentials: true }
+      );
 
       if (response.status === 200) {
         console.log(response.data);
