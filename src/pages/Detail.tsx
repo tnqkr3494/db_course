@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
+import { FaHeart, FaRegHeart } from "react-icons/fa"; // 좋아요 아이콘 추가
 
 interface IMovie {
   id: string;
@@ -13,9 +14,16 @@ interface IMovie {
   director_name: string;
 }
 
+interface IUser {
+  userId: string;
+  username: string;
+}
+
 const Detail = () => {
   const { id } = useParams();
   const [movie, setMovie] = useState<IMovie[]>([]);
+  const [user, setUser] = useState<IUser | null>(null); // 사용자 상태 추가
+  const [liked, setLiked] = useState<boolean>(false); // 좋아요 상태 추가
 
   useEffect(() => {
     const fetchMovie = async () => {
@@ -26,15 +34,46 @@ const Detail = () => {
             withCredentials: true,
           }
         );
-        console.log(response);
         setMovie(response.data);
       } catch (error) {
         console.error("Error fetching movie:", error);
       }
     };
 
+    const fetchUser = async () => {
+      try {
+        const response = await axios.get("http://localhost:8080/api/user", {
+          withCredentials: true,
+        });
+        setUser(response.data.user);
+      } catch (error) {
+        console.error("Error fetching user:", error);
+        setUser(null);
+      }
+    };
+
     fetchMovie();
+    fetchUser();
   }, [id]);
+
+  const handleLike = async () => {
+    if (!user) return;
+
+    try {
+      const { userId } = user;
+
+      await axios.post(
+        `http://localhost:8080/api/like/${id}`,
+        { userId, id },
+        {
+          withCredentials: true,
+        }
+      );
+      setLiked(!liked); // 좋아요 상태 토글
+    } catch (error) {
+      console.error("Error liking movie:", error);
+    }
+  };
 
   if (!movie.length) {
     return <div>Loading...</div>;
@@ -88,6 +127,19 @@ const Detail = () => {
                 ))}
               </ul>
             </div>
+            {user && (
+              <button
+                onClick={handleLike}
+                className="mt-4 flex items-center space-x-2 text-pink-600 hover:text-pink-800 focus:outline-none"
+              >
+                {liked ? (
+                  <FaHeart className="text-2xl" />
+                ) : (
+                  <FaRegHeart className="text-2xl" />
+                )}
+                <span className="text-lg">{liked ? "Liked" : "Like"}</span>
+              </button>
+            )}
           </div>
         </div>
       </div>

@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { FaHeart } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
 interface IUser {
@@ -64,6 +65,24 @@ const Profile = () => {
     fetchUser();
   }, []);
 
+  const handleClicked = async (id: string) => {
+    if (!user) return;
+    const { userId } = user;
+    const response = await axios.post(
+      `http://localhost:8080/api/dislike/${id}`,
+      {
+        userId,
+        id,
+      },
+      { withCredentials: true } // 쿠키를 전송하기 위해 설정
+    );
+    if (response.status === 200) {
+      setFavoriteMovies((prevMovies) =>
+        prevMovies.filter((movie) => movie.movie_id !== id)
+      );
+    }
+  };
+
   const groupedTickets = tickets.reduce((acc, ticket) => {
     const key = `${ticket.cinema_id}-${ticket.part_time}`;
     if (!acc[key]) {
@@ -86,18 +105,27 @@ const Profile = () => {
           </h2>
           <ul className="gap-4 flex flex-col">
             {favoriteMovies.map((movie) => (
-              <Link to={`/movie/${movie.movie_id}`} key={movie.movie_id}>
-                <li className="flex items-center space-x-4 bg-gray-100 p-4 rounded-lg shadow-md transform transition duration-300 hover:scale-105">
-                  <img
-                    src={`/${movie.movie_id}.jpeg`}
-                    alt={movie.favorite_movie}
-                    className="w-16 h-24 object-cover rounded-lg border-2 border-gray-300"
-                  />
-                  <span className="text-lg text-gray-800">
-                    {movie.favorite_movie}
-                  </span>
-                </li>
-              </Link>
+              <li
+                key={movie.movie_id}
+                className="flex items-center justify-between bg-gray-100 p-4 rounded-lg shadow-md transform transition duration-300 hover:scale-105"
+              >
+                <Link to={`/movie/${movie.movie_id}`}>
+                  <div className="flex items-center gap-4">
+                    <img
+                      src={`/${movie.movie_id}.jpeg`}
+                      alt={movie.favorite_movie}
+                      className="w-16 h-24 object-cover rounded-lg border-2 border-gray-300"
+                    />
+                    <span className="text-lg text-gray-800">
+                      {movie.favorite_movie}
+                    </span>
+                  </div>
+                </Link>
+                <FaHeart
+                  className="text-2xl cursor-pointer text-red-500"
+                  onClick={() => handleClicked(movie.movie_id)}
+                />
+              </li>
             ))}
           </ul>
           <h2 className="text-2xl font-semibold mt-6 mb-4 text-gray-700">

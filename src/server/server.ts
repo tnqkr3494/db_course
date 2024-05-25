@@ -171,6 +171,31 @@ app.get("/api/genre", async (req, res) => {
   }
 });
 
+app.post("/api/like/:id", async (req: Request, res: Response) => {
+  const { userId, id } = req.body;
+  try {
+    await pool.request().input("userId", userId).input("movieId", id).query(`
+      INSERT INTO favorite VALUES (@movieId, @userId)
+    `);
+    res.status(200).json({ message: "like" });
+  } catch (e) {
+    res.status(500).json({ error: "server error" });
+  }
+});
+
+app.post("/api/dislike/:id", async (req: Request, res: Response) => {
+  const { userId, id } = req.body;
+  try {
+    await pool.request().input("userId", userId).input("movieId", id).query(`
+      DELETE FROM favorite
+      WHERE @movieId=m_id AND @userId=u_id
+    `);
+    res.status(200).json({ message: "dislike" });
+  } catch (e) {
+    res.status(500).json({ error: "server error" });
+  }
+});
+
 // 영화관 api
 
 app.get("/api/cinema/:id", async (req: Request, res: Response) => {
