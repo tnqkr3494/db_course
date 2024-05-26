@@ -52,26 +52,60 @@ const Detail = () => {
       }
     };
 
+    const fetchFav = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:8080/api/user/favorite",
+          {
+            withCredentials: true,
+          }
+        );
+
+        if (response.data) {
+          if (response.data.some((data: any) => data.movie_id === id)) {
+            setLiked(true);
+          }
+        }
+      } catch (error) {
+        console.log("Error", error);
+      }
+    };
+
     fetchMovie();
     fetchUser();
+    fetchFav();
   }, [id]);
 
   const handleLike = async () => {
     if (!user) return;
+    const { userId } = user;
 
-    try {
-      const { userId } = user;
-
-      await axios.post(
-        `http://localhost:8080/api/like/${id}`,
-        { userId, id },
-        {
-          withCredentials: true,
-        }
-      );
-      setLiked(!liked); // 좋아요 상태 토글
-    } catch (error) {
-      console.error("Error liking movie:", error);
+    if (!liked) {
+      try {
+        await axios.post(
+          `http://localhost:8080/api/like/${id}`,
+          { userId, id },
+          {
+            withCredentials: true,
+          }
+        );
+        setLiked(!liked); // 좋아요 상태 토글
+      } catch (error) {
+        console.error("Error liking movie:", error);
+      }
+    } else {
+      try {
+        await axios.post(
+          `http://localhost:8080/api/dislike/${id}`,
+          { userId, id },
+          {
+            withCredentials: true,
+          }
+        );
+        setLiked(!liked); // 좋아요 상태 토글
+      } catch (error) {
+        console.error("Error liking movie:", error);
+      }
     }
   };
 
