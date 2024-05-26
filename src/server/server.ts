@@ -227,7 +227,7 @@ app.listen(port, () => {
 
 // 이 영화가 언제 어디서 볼 수 있는지
 app.get("/api/search/:id", async (req: Request, res: Response) => {
-  const { id } = req.query;
+  const { id } = req.params;
   try {
     const result = await pool.request().input("id", id).query(`
       SELECT * FROM whenWhere(@id)
