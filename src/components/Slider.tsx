@@ -49,7 +49,7 @@ const btnVariants = {
 
 const offset = 6;
 
-interface IMovies {
+export interface IMovies {
   id: string;
   movie_name: string;
   year: number;

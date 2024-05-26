@@ -225,6 +225,23 @@ app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });
 
+// 이 영화가 언제 어디서 볼 수 있는지
+app.get("/api/search/:id", async (req: Request, res: Response) => {
+  const { id } = req.query;
+  try {
+    const result = await pool.request().input("id", id).query(`
+      SELECT * FROM whenWhere(@id)
+    `);
+    if (result.recordset.length === 0) {
+      return res.status(404).json({ error: "Movie not found" });
+    }
+
+    res.json(result.recordset);
+  } catch (error) {
+    return res.status(404).json({ error: "Movie Not Found" });
+  }
+});
+
 // user profile
 
 // 세션에 저장된 사용자 정보 가져오기
