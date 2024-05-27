@@ -7,6 +7,7 @@ import Ticket from "./pages/Ticket";
 import Cinema from "./pages/Cinema";
 import Login from "./pages/Login";
 import Detail from "./pages/Detail";
+import Buy from "./pages/Buy";
 
 export const router = createBrowserRouter([
   {
@@ -32,6 +33,10 @@ export const router = createBrowserRouter([
       {
         path: "movie/:id",
         element: <Detail />,
+      },
+      {
+        path: "buy/:id",
+        element: <Buy />,
       },
     ],
   },

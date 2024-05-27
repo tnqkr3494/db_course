@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { FaHeart } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
-interface IUser {
+export interface IUser {
   userId: string;
   username: string;
 }

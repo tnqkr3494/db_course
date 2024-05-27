@@ -4,6 +4,8 @@ import axios from "axios";
 import MovieList from "../components/MovieList";
 import CinemaList from "../components/CinemaList";
 import TimeList from "../components/TimeList";
+import { IUser } from "./Profile";
+import { useNavigate } from "react-router-dom";
 
 export interface ICinemas {
   cinema_name: string;
@@ -19,19 +21,15 @@ const Ticket = () => {
   const [movieTitle, setMovieTitle] = useState("");
   const [movieToggle, setMovieToggle] = useState(false);
   const [timeToggle, setTimeToggle] = useState(false);
+  const [user, setUser] = useState<IUser | undefined>();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchMovies = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:8080/api/movie",
-
-          {
-            withCredentials: true,
-          }
-        );
-        console.log("hello");
-
+        const response = await axios.get("http://localhost:8080/api/movie", {
+          withCredentials: true,
+        });
         if (response.status === 200) {
           setMovies(response.data);
         }
@@ -39,7 +37,20 @@ const Ticket = () => {
         console.log(error);
       }
     };
+
+    const fetchUser = async () => {
+      try {
+        const response = await axios.get("http://localhost:8080/api/user", {
+          withCredentials: true, // 쿠키를 전송하기 위해 설정
+        });
+        setUser(response.data.user);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
     fetchMovies();
+    fetchUser();
   }, []);
 
   const handleClick = async (id: string) => {
@@ -47,9 +58,7 @@ const Ticket = () => {
       try {
         const response = await axios.get(
           `http://localhost:8080/api/search/${id}`,
-          {
-            withCredentials: true,
-          }
+          { withCredentials: true }
         );
         setCinemas(response.data);
         const title = movies.find((movie) => movie.id === id)?.movie_name;
@@ -79,6 +88,12 @@ const Ticket = () => {
     }
   };
 
+  const handleBuyTicket = () => {
+    if (user && movieTitle && info) {
+      navigate(`/buy/${info.show_id}`);
+    }
+  };
+
   return (
     <div className="container mx-auto p-4">
       <div className="mt-4 p-4 bg-gray-200 rounded">
@@ -94,19 +109,22 @@ const Ticket = () => {
         <CinemaList cinemas={cinemas} />
         <TimeList
           cinemas={cinemas}
-          sestShowInfo={setShowInfo}
+          setShowInfo={setShowInfo}
           timeToggle={timeToggle}
           showId={info?.show_id!}
         />
       </div>
       <div className="flex justify-end mt-5 items-center gap-5">
         <div className="flex gap-5 bg-slate-500 p-4 rounded-md">
-          <span>Movie : {movieTitle}</span>
-          <span>Cinema : {info?.cinema_name}</span>
-          <span>Part_Time : {info?.part_time}</span>
-          <span>Price : {info?.price}</span>
+          <span>Movie: {movieTitle}</span>
+          <span>Cinema: {info?.cinema_name}</span>
+          <span>Part_Time: {info?.part_time}</span>
+          <span>Price: {info?.price}</span>
         </div>
-        <button className="btn btn-xs sm:btn-sm md:btn-md lg:btn-lg bg-slate-500">
+        <button
+          onClick={handleBuyTicket}
+          className="btn btn-xs sm:btn-sm md:btn-md lg:btn-lg bg-slate-500"
+        >
           Buy Ticket
         </button>
       </div>

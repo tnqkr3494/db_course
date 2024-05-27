@@ -3,12 +3,12 @@ import { IMovies } from "./Slider";
 
 interface ITimeList {
   cinemas: ICinemas[];
-  sestShowInfo: ({}: ICinemas) => void;
+  setShowInfo: ({}: ICinemas) => void;
   timeToggle: boolean;
   showId: number;
 }
 
-function TimeList({ cinemas, sestShowInfo, timeToggle, showId }: ITimeList) {
+function TimeList({ cinemas, setShowInfo, timeToggle, showId }: ITimeList) {
   return (
     <div className="border-red-500 border-2 flex flex-col text-center w-full">
       <span className="bg-slate-500 py-2">Part_Time</span>
@@ -20,7 +20,7 @@ function TimeList({ cinemas, sestShowInfo, timeToggle, showId }: ITimeList) {
             className={`py-2 font-semibold capitalize cursor-pointer ${
               timeToggle && showId === cinema.show_id ? "bg-red-500" : ""
             }`}
-            onClick={() => sestShowInfo(cinema)}
+            onClick={() => setShowInfo(cinema)}
           >
             {`Start Time(part_time${cinema.part_time}) : `}
             {cinema.part_time === 1
