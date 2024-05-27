@@ -232,9 +232,6 @@ app.get("/api/search/:id", async (req: Request, res: Response) => {
     const result = await pool.request().input("id", id).query(`
       SELECT * FROM whenWhere(@id)
     `);
-    if (result.recordset.length === 0) {
-      return res.status(404).json({ error: "Movie not found" });
-    }
 
     res.json(result.recordset);
   } catch (error) {
