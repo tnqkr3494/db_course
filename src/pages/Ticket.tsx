@@ -22,6 +22,7 @@ const Ticket = () => {
   const [movieToggle, setMovieToggle] = useState(false);
   const [timeToggle, setTimeToggle] = useState(false);
   const [user, setUser] = useState<IUser | undefined>();
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -90,8 +91,17 @@ const Ticket = () => {
 
   const handleBuyTicket = () => {
     if (user && movieTitle && info) {
-      navigate(`/buy/${info.show_id}`);
+      setIsModalOpen(true);
     }
+  };
+
+  const handleModalConfirm = () => {
+    setIsModalOpen(false);
+    navigate(`/buy/${info?.show_id}`);
+  };
+
+  const handleModalCancel = () => {
+    setIsModalOpen(false);
   };
 
   return (
@@ -128,6 +138,28 @@ const Ticket = () => {
           Buy Ticket
         </button>
       </div>
+      {isModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
+          <div className="bg-white p-5 rounded-md shadow-md">
+            <h3 className="text-lg font-bold mb-4">Confirm Purchase</h3>
+            <p>Do you want to buy the ticket?</p>
+            <div className="flex justify-end gap-4 mt-4">
+              <button
+                onClick={handleModalConfirm}
+                className="btn bg-green-500 text-white border-none"
+              >
+                Yes
+              </button>
+              <button
+                onClick={handleModalCancel}
+                className="btn bg-red-500 text-white border-none"
+              >
+                No
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

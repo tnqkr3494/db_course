@@ -292,7 +292,7 @@ app.post("/api/buy/tickets/:id", async (req, res) => {
           where s.c_id = @showId
         );
 
-        if(@capacity > 100)
+        if(@capacity >= 8)
           select 'Ticket is already sold out' as message;
         else begin
           set @remain = 100 - @capacity;
