@@ -276,3 +276,43 @@ app.get("/api/user/tickets", async (req: Request, res: Response) => {
     res.status(401).json({ error: "Not authenticated" });
   }
 });
+
+// ticket buy
+app.post("/api/buy/tickets/:id", async (req, res) => {
+  const showId = req.params.id;
+  const { userId } = req.body;
+  try {
+    const result = await pool.request().input("showId", showId).query(`
+        declare @capacity int;
+        declare @remain int;
+        select @capacity = (
+          select count(*)
+          from ticket t
+          join show s on t.s_id = s.id 
+          where s.c_id = @showId
+        );
+
+        if(@capacity > 100)
+          select 'Ticket is already sold out' as message;
+        else begin
+          set @remain = 100 - @capacity;
+          select 'Ticket remain ' + convert(varchar, @remain) as message;
+        end
+      `);
+
+    const message = result.recordset[0].message;
+    if (message.includes("sold out")) {
+      res.status(400).json({ message });
+    } else {
+      await pool.request().input("showId", showId).input("userId", userId)
+        .query(`
+          insert into ticket(s_id, u_id)
+          values (@showId, @userId)
+        `);
+      res.status(200).json({ message: "Ticket purchased successfully" });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
