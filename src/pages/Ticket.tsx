@@ -23,6 +23,7 @@ const Ticket = () => {
   const [timeToggle, setTimeToggle] = useState(false);
   const [user, setUser] = useState<IUser | undefined>();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [message, setMessage] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -42,7 +43,7 @@ const Ticket = () => {
     const fetchUser = async () => {
       try {
         const response = await axios.get("http://localhost:8080/api/user", {
-          withCredentials: true, // 쿠키를 전송하기 위해 설정
+          withCredentials: true,
         });
         setUser(response.data.user);
       } catch (error) {
@@ -71,6 +72,7 @@ const Ticket = () => {
       }
     } else {
       setMovieToggle((prev) => !prev);
+      setMovieTitle("");
     }
   };
 
@@ -92,12 +94,37 @@ const Ticket = () => {
   const handleBuyTicket = () => {
     if (user && movieTitle && info) {
       setIsModalOpen(true);
+    } else if (!user) {
+      alert("Please login");
     }
   };
 
-  const handleModalConfirm = () => {
-    setIsModalOpen(false);
-    navigate(`/buy/${info?.show_id}`);
+  const handleModalConfirm = async () => {
+    if (user && info) {
+      try {
+        const response = await axios.post(
+          `http://localhost:8080/api/buy/tickets/${info.show_id}`,
+          { userId: user.userId },
+          {
+            withCredentials: true,
+          }
+        );
+        navigate(`/buy/${info.show_id}`, {
+          state: { message: response.data.message },
+        });
+      } catch (error: any) {
+        if (error.response) {
+          navigate(`/buy/${info.show_id}`, {
+            state: { message: error.response.data.message },
+          });
+        } else {
+          navigate(`/buy/${info.show_id}`, {
+            state: { message: "An error occurred" },
+          });
+        }
+      }
+      setIsModalOpen(false);
+    }
   };
 
   const handleModalCancel = () => {
@@ -105,11 +132,11 @@ const Ticket = () => {
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <div className="mt-4 p-4 bg-gray-200 rounded">
-        <h2 className="text-xl font-bold">Tickets</h2>
+    <div className="container mx-auto p-6">
+      <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-4 rounded-lg shadow-md">
+        <h2 className="text-2xl font-bold">Tickets</h2>
       </div>
-      <div className="grid grid-cols-3 gap-3 mt-5">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
         <MovieList
           movies={movies}
           handleClick={handleClick}
@@ -124,8 +151,8 @@ const Ticket = () => {
           showId={info?.show_id!}
         />
       </div>
-      <div className="flex justify-end mt-5 items-center gap-5">
-        <div className="flex gap-5 bg-slate-500 p-4 rounded-md">
+      <div className="flex justify-end mt-6 items-center gap-6">
+        <div className="flex gap-6 bg-gray-800 text-white p-4 rounded-lg shadow-md">
           <span>Movie: {movieTitle}</span>
           <span>Cinema: {info?.cinema_name}</span>
           <span>Part_Time: {info?.part_time}</span>
@@ -133,26 +160,26 @@ const Ticket = () => {
         </div>
         <button
           onClick={handleBuyTicket}
-          className="btn btn-xs sm:btn-sm md:btn-md lg:btn-lg bg-slate-500"
+          className="btn btn-xs sm:btn-sm md:btn-md lg:btn-lg bg-blue-600 text-white hover:bg-blue-700 rounded-lg shadow-md transition duration-300"
         >
           Buy Ticket
         </button>
       </div>
       {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
-          <div className="bg-white p-5 rounded-md shadow-md">
-            <h3 className="text-lg font-bold mb-4">Confirm Purchase</h3>
-            <p>Do you want to buy the ticket?</p>
-            <div className="flex justify-end gap-4 mt-4">
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <h3 className="text-xl font-bold mb-4">Confirm Purchase</h3>
+            <p className="mb-4">Do you want to buy the ticket?</p>
+            <div className="flex justify-end gap-4">
               <button
                 onClick={handleModalConfirm}
-                className="btn bg-green-500 text-white border-none"
+                className="btn bg-green-500 text-white rounded-lg hover:bg-green-600 transition duration-300"
               >
                 Yes
               </button>
               <button
                 onClick={handleModalCancel}
-                className="btn bg-red-500 text-white border-none"
+                className="btn bg-red-500 text-white rounded-lg hover:bg-red-600 transition duration-300"
               >
                 No
               </button>

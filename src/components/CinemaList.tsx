@@ -7,16 +7,19 @@ interface ICinemaList {
 
 function CinemaList({ cinemas }: ICinemaList) {
   return (
-    <div className="border-red-500 border-2 flex flex-col text-center w-full">
-      <span className="bg-slate-500 py-2">Cinemas</span>
-      <div className="border-b-2 py-2">reserve</div>
-      <ul className="mt-2">
-        {cinemas.map((cinema, index) => (
-          <li key={index} className="py-2 font-semibold capitalize">
-            {cinema.cinema_name}
-          </li>
-        ))}
-      </ul>
+    <div className="border border-gray-300 rounded-lg p-4">
+      <h2 className="bg-gray-200 text-gray-800 text-lg font-semibold py-2 px-4 mb-4 rounded-lg shadow-md">
+        Cinemas
+      </h2>
+      <div className="mb-4">
+        <ul>
+          {cinemas.map((cinema, index) => (
+            <li key={index} className="py-2 font-semibold capitalize">
+              {cinema.cinema_name}
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }
