@@ -19,6 +19,7 @@ interface ITickets {
   part_time: number;
   cinema_name: string;
   cinema_id: string;
+  movie_name: string;
 }
 
 const Profile = () => {
@@ -138,6 +139,9 @@ const Profile = () => {
                 className="bg-white p-6 rounded-lg shadow-lg relative before:content-[''] before:absolute before:top-0 before:left-0 before:h-full before:w-8 before:bg-gradient-to-t from-gray-200 to-gray-100 before:rounded-l-lg after:content-[''] after:absolute after:top-0 after:right-0 after:h-full after:w-8 after:bg-gradient-to-t after:rounded-r-lg"
               >
                 <div className="flex flex-col items-start space-y-2 px-5">
+                  <span className="text-lg font-semibold text-gray-800">
+                    Movie: {ticket.movie_name}
+                  </span>
                   <span className="text-lg font-semibold text-gray-800">
                     Cinema: {ticket.cinema_name}
                   </span>
