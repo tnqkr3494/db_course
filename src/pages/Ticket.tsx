@@ -25,6 +25,7 @@ const Ticket = () => {
   const [user, setUser] = useState<IUser | undefined>();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [message, setMessage] = useState("");
+  const [ticketCount, setTicketCount] = useState(1);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -108,6 +109,7 @@ const Ticket = () => {
           `http://localhost:8080/api/buy/tickets/${info.show_id}`,
           {
             userId: user.userId,
+            ticketCount,
           },
           {
             withCredentials: true,
@@ -162,6 +164,18 @@ const Ticket = () => {
           <span>Part_Time: {info?.part_time}</span>
           <span>Price: {info?.price}</span>
         </div>
+        <select
+          name="ticket"
+          className="px-5 py-3 rounded-md bg-gray-800 text-white"
+          value={ticketCount}
+          onChange={(e) => setTicketCount(Number(e.target.value))}
+        >
+          {[...Array(5)].map((_, i) => (
+            <option key={i} value={i + 1}>
+              {i + 1}
+            </option>
+          ))}
+        </select>
         <button
           onClick={handleBuyTicket}
           className="btn btn-xs sm:btn-sm md:btn-md lg:btn-lg bg-blue-600 text-white hover:bg-blue-700 rounded-lg shadow-md transition duration-300"

@@ -280,35 +280,45 @@ app.get("/api/user/tickets", async (req: Request, res: Response) => {
 // ticket buy
 app.post("/api/buy/tickets/:id", async (req, res) => {
   const showId = req.params.id;
-  const { userId } = req.body;
-  try {
-    const result = await pool.request().input("showId", showId).query(`
-        declare @capacity int;
-        declare @remain int;
-        select @capacity = (
-          select count(*)
-          from ticket t
-          join show s on t.s_id = s.id 
-          where s.id = @showId
-        );
+  const { userId, ticketCount } = req.body;
 
-        if(@capacity >= 8)
-          select 'Ticket is already sold out' as message;
-        else begin
-          set @remain = 100 - @capacity;
-          select 'Ticket remain ' + convert(varchar, @remain) as message;
-        end
-      `);
+  try {
+    const result = await pool
+      .request()
+      .input("showId", showId)
+      .input("ticketCount", ticketCount).query(`
+      DECLARE @capacity INT;
+      DECLARE @soldTickets INT;
+      DECLARE @remain INT;
+
+      -- Maximum capacity for the show (assuming it's a fixed value, e.g., 100 seats)
+      SET @capacity = 8;
+
+      -- Calculate the number of sold tickets for the specific show
+      SELECT @soldTickets = COUNT(*)
+      FROM ticket t
+      JOIN show s ON t.s_id = s.id 
+      WHERE s.id = @showId;
+
+      IF (@soldTickets + @ticketCount > @capacity)
+        SELECT 'Requested tickets exceed available tickets or maybe already sold out :(' AS message;
+      ELSE BEGIN
+        SET @remain = @capacity - (@soldTickets + @ticketCount);
+        SELECT 'Ticket remain ' + CONVERT(VARCHAR, @remain) AS message;
+      END
+    `);
 
     const message = result.recordset[0].message;
     if (message.includes("sold out")) {
       res.status(400).json({ message });
     } else {
-      await pool.request().input("showId", showId).input("userId", userId)
-        .query(`
-          insert into ticket(s_id, u_id)
-          values (@showId, @userId)
-        `);
+      for (let i = 0; i < ticketCount; i++) {
+        await pool.request().input("showId", showId).input("userId", userId)
+          .query(`
+            INSERT INTO ticket(s_id, u_id)
+            VALUES (@showId, @userId)
+          `);
+      }
       res.status(200).json({ message: "Ticket purchased successfully" });
     }
   } catch (err) {
