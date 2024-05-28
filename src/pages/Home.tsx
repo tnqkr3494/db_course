@@ -1,14 +1,40 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import axios from "axios";
 import Slider from "../components/Slider";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { FaSearch } from "react-icons/fa";
 
-interface Users {
-  id: string;
-  movie_name: string;
+interface ISearchMovie {
+  title: string;
 }
 
 const Home = () => {
+  const {
+    register,
+    handleSubmit,
+    setError,
+    formState: { errors },
+  } = useForm<ISearchMovie>();
+  const navigate = useNavigate();
+
+  const onSubmit = async (d: ISearchMovie) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:8080/api/title/${d.title}`,
+        { withCredentials: true }
+      );
+      if (response.status === 200) {
+        navigate(`/movie/${response.data}`);
+      }
+    } catch (e) {
+      setError("title", {
+        type: "server",
+        message: "We don't have this movie information",
+      });
+    }
+  };
+
   return (
     <div>
       <section className="hero min-h-screen bg-[url('./assets/images/main.png')]">
@@ -23,9 +49,25 @@ const Home = () => {
               Join us to relive the golden age of cinema with carefully curated
               selections from the past.
             </p>
-            <Link to="/profile">
-              <button className="btn btn-primary">Get Started</button>
-            </Link>
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              className="flex items-center justify-center gap-2"
+            >
+              <input
+                type="text"
+                placeholder="search the movie..."
+                className="px-5  py-4  text-2xl bg-black border-none rounded-md"
+                {...register("title", { required: true })}
+              />
+              <button className="text-2xl">
+                <FaSearch />
+              </button>
+            </form>
+            {errors.title && (
+              <div className="text-red-500 mt-2 text-center font-semibold">
+                {errors.title.message}
+              </div>
+            )}
           </div>
         </div>
       </section>

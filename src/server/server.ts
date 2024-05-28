@@ -125,6 +125,21 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
+//홈 화면에서 영화 제목으로 검색
+app.get("/api/title/:name", async (req: Request, res: Response) => {
+  const { name } = req.params;
+  try {
+    const result = await pool.request().input("movieTitle", name).query(`
+      SELECT id as movie_id
+      FROM movie
+      WHERE movie_name = @movieTitle
+    `);
+    res.status(200).json(result.recordset[0].movie_id);
+  } catch (e) {
+    res.status(500).send("Error retrieving data from database.");
+  }
+});
+
 // 영화 정보
 app.get("/api/movie/:id", async (req: Request, res: Response) => {
   const { id } = req.params;

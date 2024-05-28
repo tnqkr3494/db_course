@@ -93,6 +93,7 @@ const Profile = () => {
     }
     return acc;
   }, {} as { [key: string]: ITickets & { count: number } });
+  console.log(favoriteMovies);
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-purple-500 to-indigo-600 flex flex-col items-center justify-center py-10">
@@ -104,61 +105,74 @@ const Profile = () => {
           <h2 className="text-2xl font-semibold mt-6 mb-4 text-gray-700">
             Your Favorite Movie List
           </h2>
-          <ul className="gap-4 flex flex-col">
-            {favoriteMovies.map((movie) => (
-              <li
-                key={movie.movie_id}
-                className="flex items-center justify-between bg-gray-100 p-4 rounded-lg shadow-md transform transition duration-300 hover:scale-105"
-              >
-                <Link to={`/movie/${movie.movie_id}`}>
-                  <div className="flex items-center gap-4">
-                    <img
-                      src={`/${movie.movie_id}.jpeg`}
-                      alt={movie.favorite_movie}
-                      className="w-16 h-24 object-cover rounded-lg border-2 border-gray-300"
-                    />
-                    <span className="text-lg text-gray-800">
-                      {movie.favorite_movie}
-                    </span>
-                  </div>
-                </Link>
-                <FaHeart
-                  className="text-2xl cursor-pointer text-red-500"
-                  onClick={() => handleClicked(movie.movie_id)}
-                />
-              </li>
-            ))}
-          </ul>
+          {favoriteMovies?.length !== 0 ? (
+            <ul className="gap-4 flex flex-col">
+              {favoriteMovies.map((movie) => (
+                <li
+                  key={movie.movie_id}
+                  className="flex items-center justify-between bg-gray-100 p-4 rounded-lg shadow-md transform transition duration-300 hover:scale-105"
+                >
+                  <Link to={`/movie/${movie.movie_id}`}>
+                    <div className="flex items-center gap-4">
+                      <img
+                        src={`/${movie.movie_id}.jpeg`}
+                        alt={movie.favorite_movie}
+                        className="w-16 h-24 object-cover rounded-lg border-2 border-gray-300"
+                      />
+                      <span className="text-lg text-gray-800">
+                        {movie.favorite_movie}
+                      </span>
+                    </div>
+                  </Link>
+                  <FaHeart
+                    className="text-2xl cursor-pointer text-red-500"
+                    onClick={() => handleClicked(movie.movie_id)}
+                  />
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <span className="font-semibold text-red-500">
+              You don't have favorite movies :(
+            </span>
+          )}
+
           <h2 className="text-2xl font-semibold mt-6 mb-4 text-gray-700">
             Your Tickets List
           </h2>
-          <ul className="gap-4 flex flex-col">
-            {Object.values(groupedTickets).map((ticket) => (
-              <li
-                key={`${ticket.cinema_id}-${ticket.part_time}`}
-                className="bg-white p-6 rounded-lg shadow-lg relative before:content-[''] before:absolute before:top-0 before:left-0 before:h-full before:w-8 before:bg-gradient-to-t from-gray-200 to-gray-100 before:rounded-l-lg after:content-[''] after:absolute after:top-0 after:right-0 after:h-full after:w-8 after:bg-gradient-to-t after:rounded-r-lg"
-              >
-                <div className="flex flex-col items-start space-y-2 px-5">
-                  <span className="text-lg font-semibold text-gray-800">
-                    Movie: {ticket.movie_name}
-                  </span>
-                  <span className="text-lg font-semibold text-gray-800">
-                    Cinema: {ticket.cinema_name}
-                  </span>
-                  <span className="text-lg text-gray-600">
-                    Part Time: {ticket.part_time}
-                  </span>
-                  <span className="text-lg text-gray-800">
-                    Price: {ticket.price} ₩
-                  </span>
-                  <span className="text-lg text-gray-800">
-                    Quantity: {ticket.count}
-                  </span>
-                </div>
-              </li>
-            ))}
-          </ul>
-          {/* 다른 컴포넌트나 페이지에서 user 상태를 사용 */}
+
+          {Object.values(groupedTickets).length !== 0 ? (
+            <ul className="gap-4 flex flex-col">
+              {Object.values(groupedTickets).map((ticket) => (
+                <li
+                  key={`${ticket.cinema_id}-${ticket.part_time}`}
+                  className="bg-white p-6 rounded-lg shadow-lg relative before:content-[''] before:absolute before:top-0 before:left-0 before:h-full before:w-8 before:bg-gradient-to-t from-gray-200 to-gray-100 before:rounded-l-lg after:content-[''] after:absolute after:top-0 after:right-0 after:h-full after:w-8 after:bg-gradient-to-t after:rounded-r-lg"
+                >
+                  <div className="flex flex-col items-start space-y-2 px-5">
+                    <span className="text-lg font-semibold text-gray-800">
+                      Movie: {ticket.movie_name}
+                    </span>
+                    <span className="text-lg font-semibold text-gray-800">
+                      Cinema: {ticket.cinema_name}
+                    </span>
+                    <span className="text-lg text-gray-600">
+                      Part Time: {ticket.part_time}
+                    </span>
+                    <span className="text-lg text-gray-800">
+                      Price: {ticket.price} ₩
+                    </span>
+                    <span className="text-lg text-gray-800">
+                      Quantity: {ticket.count}
+                    </span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <span className="font-semibold text-red-500">
+              You don't have any tickets :(
+            </span>
+          )}
         </div>
       ) : (
         <div className="bg-white shadow-2xl rounded-xl p-8 w-full max-w-md text-center transform transition duration-500 hover:scale-105">
