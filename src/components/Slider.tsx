@@ -95,7 +95,6 @@ function Slider({ isGenre = false }: ISlider) {
   const nextSlide = () => {
     if (movies.length > 0) {
       if (leaving) return;
-      console.log("next");
 
       toggleLeaving();
       const totalMovies = movies.length - 1;

@@ -93,7 +93,6 @@ const Profile = () => {
     }
     return acc;
   }, {} as { [key: string]: ITickets & { count: number } });
-  console.log(favoriteMovies);
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-purple-500 to-indigo-600 flex flex-col items-center justify-center py-10">

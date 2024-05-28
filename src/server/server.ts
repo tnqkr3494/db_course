@@ -3,6 +3,7 @@ import session from "express-session";
 import dotenv from "dotenv";
 import { ConnectionPool } from "mssql";
 import cors from "cors";
+import bcrypt from "bcrypt";
 
 dotenv.config();
 
@@ -107,7 +108,7 @@ app.post("/api/login", async (req, res) => {
     }
 
     const user = result.recordset[0];
-    const isPasswordValid = Boolean(user.password === password);
+    const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
       return res.status(400).json({ error: "Invalid username or password" });
@@ -124,7 +125,6 @@ app.post("/api/login", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
-
 //홈 화면에서 영화 제목으로 검색
 app.get("/api/title/:name", async (req: Request, res: Response) => {
   const { name } = req.params;
@@ -350,4 +350,28 @@ app.post("/api/logout", async (req: Request, res: Response) => {
       res.status(200).json();
     }
   });
+});
+
+app.post("/api/signup", async (req, res) => {
+  const { userName, password } = req.body;
+
+  if (!userName || !password) {
+    return res
+      .status(400)
+      .json({ error: "Username and password are required" });
+  }
+
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    await pool
+      .request()
+      .input("userName", userName)
+      .input("password", hashedPassword).query(`
+        INSERT INTO users (name, password) VALUES (@userName, @password)
+      `);
+    res.status(200).json({ message: "ok" });
+  } catch (error) {
+    console.error("Error during signup:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
 });

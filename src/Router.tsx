@@ -8,6 +8,7 @@ import Cinema from "./pages/Cinema";
 import Login from "./pages/Login";
 import Detail from "./pages/Detail";
 import Buy from "./pages/Buy";
+import SignUp from "./pages/SignUp";
 
 export const router = createBrowserRouter([
   {
@@ -43,5 +44,9 @@ export const router = createBrowserRouter([
   {
     path: "/login",
     element: <Login />,
+  },
+  {
+    path: "/signup",
+    element: <SignUp />,
   },
 ]);

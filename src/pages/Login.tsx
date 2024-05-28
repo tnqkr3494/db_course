@@ -18,7 +18,6 @@ const Login = () => {
       );
 
       if (response.status === 200) {
-        console.log(response.data);
         navigate("/"); // Redirect to home page after successful login
       }
     } catch (err) {
@@ -75,6 +74,15 @@ const Login = () => {
             Login
           </button>
         </form>
+        <button
+          type="submit"
+          className="w-full px-4 py-2 font-bold text-white bg-red-500 rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          onClick={() => {
+            navigate("/signup");
+          }}
+        >
+          Sign Up
+        </button>
       </div>
     </div>
   );
