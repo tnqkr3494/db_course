@@ -341,3 +341,13 @@ app.post("/api/buy/tickets/:id", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
+app.post("/api/logout", async (req: Request, res: Response) => {
+  await req.session.destroy(function (error) {
+    if (error) {
+      alert(error);
+    } else {
+      res.status(200).json();
+    }
+  });
+});

@@ -21,6 +21,23 @@ function Header() {
     fetchUser();
   }, []);
 
+  const handleClick = async () => {
+    try {
+      const response = await axios.post(
+        "http://localhost:8080/api/logout",
+        {},
+        {
+          withCredentials: true,
+        }
+      );
+      if (response.status === 200) {
+        navigate("/login");
+      }
+    } catch (error) {
+      console.error("Error fetching user:", error);
+    }
+  };
+
   return (
     <div className="navbar bg-base-100 px-10 py-5 border-b-2">
       <div className="flex-1">
@@ -34,7 +51,13 @@ function Header() {
             <li>
               <Link to="/login">Login</Link>
             </li>
-          ) : null}
+          ) : (
+            <li>
+              <button className="bg-red-500" onClick={handleClick}>
+                Logout
+              </button>
+            </li>
+          )}
           <li>
             <Link to="/tickets">Tickets</Link>
           </li>
