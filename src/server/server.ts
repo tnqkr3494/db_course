@@ -289,7 +289,7 @@ app.post("/api/buy/tickets/:id", async (req, res) => {
           select count(*)
           from ticket t
           join show s on t.s_id = s.id 
-          where s.c_id = @showId
+          where s.id = @showId
         );
 
         if(@capacity >= 8)

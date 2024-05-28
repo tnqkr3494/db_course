@@ -12,6 +12,7 @@ export interface ICinemas {
   part_time: number;
   price: number;
   show_id: number;
+  cinema_id: string;
 }
 
 const Ticket = () => {
@@ -81,9 +82,10 @@ const Ticket = () => {
     cinema_name,
     part_time,
     price,
+    cinema_id,
   }: ICinemas) => {
     if (!timeToggle) {
-      setInfo({ show_id, cinema_name, part_time, price });
+      setInfo({ show_id, cinema_name, part_time, price, cinema_id });
       setTimeToggle((prev) => !prev);
     } else {
       setInfo(undefined);
@@ -104,7 +106,9 @@ const Ticket = () => {
       try {
         const response = await axios.post(
           `http://localhost:8080/api/buy/tickets/${info.show_id}`,
-          { userId: user.userId },
+          {
+            userId: user.userId,
+          },
           {
             withCredentials: true,
           }
