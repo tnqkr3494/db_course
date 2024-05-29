@@ -30,11 +30,11 @@ function TimeList({ cinemas, setShowInfo, timeToggle, showId }: ITimeList) {
             >
               <span className="font-semibold">{`Start Time (part_time${cinema.part_time}): `}</span>
               {cinema.part_time === 1
-                ? "08:00~"
+                ? "08:00 ~"
                 : cinema.part_time === 2
-                ? "13:00~"
+                ? "13:00 ~"
                 : cinema.part_time === 3
-                ? "18:00~"
+                ? "18:00 ~"
                 : ""}
             </li>
           ))}

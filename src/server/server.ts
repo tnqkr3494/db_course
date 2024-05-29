@@ -5,32 +5,37 @@ import { ConnectionPool } from "mssql";
 import cors from "cors";
 import bcrypt from "bcrypt";
 
+// Load environment variables from .env file
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 8080;
 
+// Middleware to handle CORS
 app.use(
   cors({
-    origin: "http://localhost:3000", // 프론트엔드 주소
-    credentials: true, // 자격 증명을 사용하도록 설정
+    origin: "http://localhost:3000", // Frontend address
+    credentials: true, // Enable credentials
   })
 );
 
+// Middleware to parse JSON request bodies
 app.use(express.json());
 
+// Middleware to handle sessions
 app.use(
   session({
     secret: process.env.SESSION_PASSWORD!,
     resave: false,
     saveUninitialized: true,
     cookie: {
-      secure: false, // HTTPS를 사용하지 않으면 false로 설정
+      secure: false, // Set to true if using HTTPS
       httpOnly: true,
     },
   })
 );
 
+// Database configuration
 const dbConfig = {
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
@@ -46,6 +51,7 @@ const dbConfig = {
 
 const pool = new ConnectionPool(dbConfig);
 
+// Connect to the database
 pool
   .connect()
   .then(() => {
@@ -55,6 +61,11 @@ pool
     console.error("Database connection failed:", err);
   });
 
+/**
+ * Movie API
+ */
+
+// Get movies sorted by specific criteria
 app.get("/api/movie", async (req: Request, res: Response) => {
   const { sort } = req.query;
 
@@ -88,6 +99,73 @@ app.get("/api/movie", async (req: Request, res: Response) => {
   }
 });
 
+// Search for a movie by title
+app.get("/api/title/:name", async (req: Request, res: Response) => {
+  const { name } = req.params;
+  try {
+    const result = await pool.request().input("movieTitle", name).query(`
+      SELECT id as movie_id
+      FROM movie
+      WHERE movie_name = @movieTitle
+    `);
+    res.status(200).json(result.recordset[0].movie_id);
+  } catch (e) {
+    res.status(500).send("Error retrieving data from database.");
+  }
+});
+
+// Get detailed information about a specific movie
+app.get("/api/movie/:id", async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  try {
+    const result = await pool.request().input("id", id).query(`
+      SELECT *
+      FROM movie m
+      JOIN movie_actor_connect mac ON m.id = mac.m_id
+      JOIN director_movie_connect dmc ON m.id = dmc.m_id
+      JOIN actor a ON mac.a_id = a.id
+      JOIN Director d ON dmc.d_id = d.id
+      WHERE m.id = @id
+      `);
+
+    if (result.recordset.length === 0) {
+      return res.status(404).json({ error: "Movie not found" });
+    }
+
+    res.json(result.recordset);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error retrieving data from database.");
+  }
+});
+
+// Get movies by genre
+app.get("/api/genre", async (req, res) => {
+  const { genre } = req.query;
+
+  if (!genre) {
+    return res.status(400).json({ error: "Genre is required" });
+  }
+
+  try {
+    const result = await pool
+      .request()
+      .input("genre", genre)
+      .query("SELECT * FROM movieGenres(@genre)");
+
+    res.json(result.recordset);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error retrieving data from database.");
+  }
+});
+
+/**
+ * Authentication and User Management
+ */
+
+// User login
 app.post("/api/login", async (req, res) => {
   const { username, password } = req.body;
 
@@ -114,116 +192,136 @@ app.post("/api/login", async (req, res) => {
       return res.status(400).json({ error: "Invalid username or password" });
     }
 
-    // 세션에 사용자 정보 저장
+    // Save user info in session
     req.session.user = { username: user.name, userId: user.id };
 
     console.log(req.session.user);
 
-    res.status(200).json({ message: "good" });
+    res.status(200).json({ message: "Login successful" });
   } catch (error) {
     console.error("Error during login:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
-//홈 화면에서 영화 제목으로 검색
-app.get("/api/title/:name", async (req: Request, res: Response) => {
-  const { name } = req.params;
-  try {
-    const result = await pool.request().input("movieTitle", name).query(`
-      SELECT id as movie_id
-      FROM movie
-      WHERE movie_name = @movieTitle
-    `);
-    res.status(200).json(result.recordset[0].movie_id);
-  } catch (e) {
-    res.status(500).send("Error retrieving data from database.");
-  }
-});
 
-// 영화 정보
-app.get("/api/movie/:id", async (req: Request, res: Response) => {
-  const { id } = req.params;
+// User signup
+app.post("/api/signup", async (req, res) => {
+  const { userName, password } = req.body;
 
-  try {
-    const result = await pool.request().input("id", id).query(`
-      SELECT *
-      FROM movie m
-      JOIN movie_actor_connect mac ON m.id = mac.m_id
-      JOIN director_movie_connect dmc ON m.id = dmc.m_id
-      JOIN actor a ON mac.a_id = a.id
-      JOIN Director d ON dmc.d_id = d.id
-      WHERE m.id = @id
-      `);
-
-    if (result.recordset.length === 0) {
-      return res.status(404).json({ error: "Movie not found" });
-    }
-
-    res.json(result.recordset);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Error retrieving data from database.");
-  }
-});
-
-app.get("/api/genre", async (req, res) => {
-  const { genre } = req.query;
-
-  if (!genre) {
-    return res.status(400).json({ error: "Genre is required" });
+  if (!userName || !password) {
+    return res
+      .status(400)
+      .json({ error: "Username and password are required" });
   }
 
   try {
-    const result = await pool
+    const hashedPassword = await bcrypt.hash(password, 10);
+    await pool
       .request()
-      .input("genre", genre)
-      .query("SELECT * FROM movieGenres(@genre)");
-
-    res.json(result.recordset);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Error retrieving data from database.");
+      .input("userName", userName)
+      .input("password", hashedPassword).query(`
+        INSERT INTO users (name, password) VALUES (@userName, @password)
+      `);
+    res.status(200).json({ message: "Signup successful" });
+  } catch (error) {
+    console.error("Error during signup:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
+// User logout
+app.post("/api/logout", async (req: Request, res: Response) => {
+  await req.session.destroy(function (error) {
+    if (error) {
+      console.error("Error during logout:", error);
+    } else {
+      res.status(200).json({ message: "Logout successful" });
+    }
+  });
+});
+
+// Get logged-in user's info
+app.get("/api/user", (req: Request, res: Response) => {
+  if (req.session.user) {
+    res.json({ user: req.session.user });
+  } else {
+    res.status(401).json({ error: "Not authenticated" });
+  }
+});
+
+// Get user's favorite movies
+app.get("/api/user/favorite", async (req: Request, res: Response) => {
+  if (req.session.user) {
+    const result = await pool.request().input("id", req.session.user.userId)
+      .query(`
+      SELECT * FROM fav(@id)
+    `);
+    res.json(result.recordset);
+  } else {
+    res.status(401).json({ error: "Not authenticated" });
+  }
+});
+
+// Get user's tickets
+app.get("/api/user/tickets", async (req: Request, res: Response) => {
+  if (req.session.user) {
+    const result = await pool.request().input("id", req.session.user.userId)
+      .query(`
+      SELECT * FROM userTicket(@id)
+    `);
+    res.json(result.recordset);
+  } else {
+    res.status(401).json({ error: "Not authenticated" });
+  }
+});
+
+/**
+ * Favorite Movies
+ */
+
+// Add a movie to user's favorites
 app.post("/api/like/:id", async (req: Request, res: Response) => {
   const { userId, id } = req.body;
   try {
     await pool.request().input("userId", userId).input("movieId", id).query(`
       INSERT INTO favorite VALUES (@movieId, @userId)
     `);
-    res.status(200).json({ message: "like" });
+    res.status(200).json({ message: "Movie added to favorites" });
   } catch (e) {
-    res.status(500).json({ error: "server error" });
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
+// Remove a movie from user's favorites
 app.post("/api/dislike/:id", async (req: Request, res: Response) => {
   const { userId, id } = req.body;
   try {
     await pool.request().input("userId", userId).input("movieId", id).query(`
       DELETE FROM favorite
-      WHERE @movieId=m_id AND @userId=u_id
+      WHERE @movieId = m_id AND @userId = u_id
     `);
-    res.status(200).json({ message: "dislike" });
+    res.status(200).json({ message: "Movie removed from favorites" });
   } catch (e) {
-    res.status(500).json({ error: "server error" });
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
-// 영화관 api
+/**
+ * Cinema Information
+ */
 
+// Get information about a specific cinema
 app.get("/api/cinema/:id", async (req: Request, res: Response) => {
   const { id } = req.params;
 
   try {
     const result = await pool.request().input("id", id).query(`
-      select c.id as cinema_id, c.cinema_name, c.location, m.id as movie_id, m.movie_name, m.rating, m.year, m.language, m.summary, s.part_time, s.price
-      from cinema c
-      join show s on s.c_id = c.id
-      join movie m on s.m_id = m.id
+      SELECT c.id AS cinema_id, c.cinema_name, c.location, m.id AS movie_id, m.movie_name, m.rating, m.year, m.language, m.summary, s.part_time, s.price
+      FROM cinema c
+      JOIN show s ON s.c_id = c.id
+      JOIN movie m ON s.m_id = m.id
       WHERE c.id = @id
-      `);
+    `);
 
     if (result.recordset.length === 0) {
       return res.status(404).json({ error: "Cinema not found" });
@@ -236,11 +334,7 @@ app.get("/api/cinema/:id", async (req: Request, res: Response) => {
   }
 });
 
-app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
-});
-
-// 이 영화가 언제 어디서 볼 수 있는지
+// Get showtimes and locations for a specific movie
 app.get("/api/search/:id", async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
@@ -254,45 +348,11 @@ app.get("/api/search/:id", async (req: Request, res: Response) => {
   }
 });
 
-// user profile
+/**
+ * Ticket Purchasing
+ */
 
-// 세션에 저장된 사용자 정보 가져오기
-app.get("/api/user", (req: Request, res: Response) => {
-  console.log(req.session.user);
-  if (req.session.user) {
-    res.json({ user: req.session.user });
-  } else {
-    res.status(401).json({ error: "Not authenticated" });
-  }
-});
-
-// find favorite movie list
-app.get("/api/user/favorite", async (req: Request, res: Response) => {
-  if (req.session.user) {
-    const result = await pool.request().input("id", req.session.user.userId)
-      .query(`
-      select * from fav(@id)
-    `);
-    res.json(result.recordset);
-  } else {
-    res.status(401).json({ error: "Not authenticated" });
-  }
-});
-
-// find favorite movie list
-app.get("/api/user/tickets", async (req: Request, res: Response) => {
-  if (req.session.user) {
-    const result = await pool.request().input("id", req.session.user.userId)
-      .query(`
-      select * from userTicket(@id)
-    `);
-    res.json(result.recordset);
-  } else {
-    res.status(401).json({ error: "Not authenticated" });
-  }
-});
-
-// ticket buy
+// Buy tickets for a show
 app.post("/api/buy/tickets/:id", async (req, res) => {
   const showId = req.params.id;
   const { userId, ticketCount } = req.body;
@@ -342,36 +402,7 @@ app.post("/api/buy/tickets/:id", async (req, res) => {
   }
 });
 
-app.post("/api/logout", async (req: Request, res: Response) => {
-  await req.session.destroy(function (error) {
-    if (error) {
-      alert(error);
-    } else {
-      res.status(200).json();
-    }
-  });
-});
-
-app.post("/api/signup", async (req, res) => {
-  const { userName, password } = req.body;
-
-  if (!userName || !password) {
-    return res
-      .status(400)
-      .json({ error: "Username and password are required" });
-  }
-
-  try {
-    const hashedPassword = await bcrypt.hash(password, 10);
-    await pool
-      .request()
-      .input("userName", userName)
-      .input("password", hashedPassword).query(`
-        INSERT INTO users (name, password) VALUES (@userName, @password)
-      `);
-    res.status(200).json({ message: "ok" });
-  } catch (error) {
-    console.error("Error during signup:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
+// Start the server
+app.listen(port, () => {
+  console.log(`Server running at http://localhost:${port}`);
 });

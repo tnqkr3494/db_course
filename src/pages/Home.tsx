@@ -78,7 +78,7 @@ const Home = () => {
       <Slider />
       <div className="mt-50 mb-28 text-center flex flex-col gap-5">
         <h2 className="font-semibold text-5xl">Genres</h2>
-        <p>This is a list of movies that are playing in our movie theater.</p>
+        <p>You can also view movies sorted by genre.</p>
       </div>
       <Slider isGenre={true} />
     </div>
