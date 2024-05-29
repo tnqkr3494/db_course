@@ -24,8 +24,8 @@ const Ticket = () => {
   const [timeToggle, setTimeToggle] = useState(false);
   const [user, setUser] = useState<IUser | undefined>();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [message, setMessage] = useState("");
   const [ticketCount, setTicketCount] = useState(1);
+  const [price, setPrice] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -95,8 +95,20 @@ const Ticket = () => {
   };
 
   const handleBuyTicket = () => {
-    if (user && movieTitle && info) {
+    if (
+      user &&
+      movieTitle &&
+      info &&
+      Number(price) === info.price * ticketCount
+    ) {
       setIsModalOpen(true);
+    }
+    if (user && info) {
+      if (Number(price) > info.price * ticketCount) {
+        alert("You have entered more money than the ticket price");
+      } else if (Number(price) < info.price * ticketCount) {
+        alert("You don't have enough money");
+      }
     } else if (!user) {
       alert("Please login");
     }
@@ -157,31 +169,55 @@ const Ticket = () => {
           showId={info?.show_id!}
         />
       </div>
-      <div className="flex justify-end mt-6 items-center gap-6">
-        <div className="flex gap-6 bg-gray-800 text-white p-4 rounded-lg shadow-md">
-          <span>Movie: {movieTitle}</span>
-          <span>Cinema: {info?.cinema_name}</span>
-          <span>Part_Time: {info?.part_time}</span>
-          <span>Price: {info?.price}</span>
+      <div className="flex flex-col justify-end mt-6 items-center gap-6">
+        <div className="flex gap-6 bg-gray-800 text-white p-4 rounded-lg shadow-md items-center">
+          <span>
+            <span className="font-semibold text-red-500">Movie</span> :{" "}
+            {movieTitle}
+          </span>
+          <span>
+            <span className="font-semibold text-red-500">Cinema</span> :{" "}
+            {info?.cinema_name}
+          </span>
+          <span>
+            <span className="font-semibold text-red-500">Part_Time</span> :{" "}
+            {info?.part_time}
+          </span>
+          <span>
+            <span className="font-semibold text-red-500">Price</span> :{" "}
+            {info?.price}
+          </span>
+          <select
+            name="ticket"
+            className="px-5 py-3 rounded-md bg-gray-800 text-white"
+            value={ticketCount}
+            onChange={(e) => setTicketCount(Number(e.target.value))}
+          >
+            {[...Array(5)].map((_, i) => (
+              <option key={i} value={i + 1}>
+                {i + 1}
+              </option>
+            ))}
+          </select>
         </div>
-        <select
-          name="ticket"
-          className="px-5 py-3 rounded-md bg-gray-800 text-white"
-          value={ticketCount}
-          onChange={(e) => setTicketCount(Number(e.target.value))}
-        >
-          {[...Array(5)].map((_, i) => (
-            <option key={i} value={i + 1}>
-              {i + 1}
-            </option>
-          ))}
-        </select>
-        <button
-          onClick={handleBuyTicket}
-          className="btn btn-xs sm:btn-sm md:btn-md lg:btn-lg bg-blue-600 text-white hover:bg-blue-700 rounded-lg shadow-md transition duration-300"
-        >
-          Buy Ticket
-        </button>
+
+        <div className="flex gap-5 items-center justify-center">
+          <input
+            type="text"
+            required
+            className="bg-gray-800 text-white px-5 py-3 rounded-md"
+            value={price}
+            onChange={(e) => {
+              setPrice(e.target.value);
+            }}
+          />
+          <button
+            onClick={handleBuyTicket}
+            className="btn btn-xs sm:btn-sm md:btn-md lg:btn-lg bg-blue-600 text-white hover:bg-blue-700 rounded-lg shadow-md transition duration-300"
+          >
+            Buy Ticket
+          </button>
+        </div>
       </div>
       {isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">

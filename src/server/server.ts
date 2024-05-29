@@ -316,7 +316,7 @@ app.post("/api/buy/tickets/:id", async (req, res) => {
       WHERE s.id = @showId;
 
       IF (@soldTickets + @ticketCount > @capacity)
-        SELECT 'Requested tickets exceed available tickets or maybe already sold out :(' AS message;
+        SELECT 'Fail... We have remaining seats count : ' + CONVERT(VARCHAR, @capacity - @soldTickets) AS message;
       ELSE BEGIN
         SET @remain = @capacity - (@soldTickets + @ticketCount);
         SELECT 'Ticket remain ' + CONVERT(VARCHAR, @remain) AS message;
@@ -324,7 +324,7 @@ app.post("/api/buy/tickets/:id", async (req, res) => {
     `);
 
     const message = result.recordset[0].message;
-    if (message.includes("sold out")) {
+    if (message.includes("Fail")) {
       res.status(400).json({ message });
     } else {
       for (let i = 0; i < ticketCount; i++) {
