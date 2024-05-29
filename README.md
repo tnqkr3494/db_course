@@ -28,6 +28,7 @@ This project was built using the following technologies:
 - **User Profile**: Manage your personal information and preferences.
 - **Cinema Information**: Get details about our cinema locations and facilities.
 - **Buy Tickets**: Purchase tickets for your favorite classic films.
+- **Favorite**: You can add their favorite movies to the favorite list.
 
 ## Installation
 
