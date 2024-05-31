@@ -12,6 +12,11 @@ interface IMovie {
   summary: string;
   actor_name: string;
   director_name: string;
+  director_gender: string;
+  director_age: number;
+  actor_gender: string;
+  actor_age: number;
+  age: number;
 }
 
 interface IUser {
@@ -35,6 +40,7 @@ const Detail = () => {
           }
         );
         setMovie(response.data);
+        console.log(response.data);
       } catch (error) {
         console.error("Error fetching movie:", error);
       }
@@ -157,7 +163,19 @@ const Detail = () => {
               <span className="font-semibold">Actors</span>
               <ul className="list-disc list-inside pl-4">
                 {movie.map((detail, index) => (
-                  <li key={index}>{detail.actor_name}</li>
+                  <li key={index} className="">
+                    {detail.actor_name}{" "}
+                    <span
+                      className={
+                        detail.actor_gender === "Male"
+                          ? "text-blue-500"
+                          : "text-red-500"
+                      }
+                    >
+                      {detail.actor_gender === "Male" ? "♂︎" : "♀︎"}
+                    </span>
+                    , age : {detail.actor_age}
+                  </li>
                 ))}
               </ul>
             </div>

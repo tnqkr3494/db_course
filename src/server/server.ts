@@ -120,7 +120,7 @@ app.get("/api/movie/:id", async (req: Request, res: Response) => {
 
   try {
     const result = await pool.request().input("id", id).query(`
-      SELECT *
+      SELECT m.id, m.movie_name, m.[year], m.rating, m.[language], m.summary, a.actor_name, a.age as actor_age, a.gender as actor_gender, d.director_name, d.age as director_age, d.gender as director_gender
       FROM movie m
       JOIN movie_actor_connect mac ON m.id = mac.m_id
       JOIN director_movie_connect dmc ON m.id = dmc.m_id
@@ -194,8 +194,6 @@ app.post("/api/login", async (req, res) => {
 
     // Save user info in session
     req.session.user = { username: user.name, userId: user.id };
-
-    console.log(req.session.user);
 
     res.status(200).json({ message: "Login successful" });
   } catch (error) {
